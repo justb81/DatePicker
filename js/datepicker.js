@@ -917,6 +917,7 @@
           if ($(this).data('datepickerId')) {
             var cal = $('#' + $(this).data('datepickerId'));
             var options = cal.data('datepicker');
+            if ($.isArray(date)) date = Array.prototype.slice.apply(date); //Copy Array
             options.date = normalizeDate(options.mode, date);
 
             if (shiftTo) {
