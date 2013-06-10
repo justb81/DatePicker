@@ -23,6 +23,8 @@ Download the latest release, and jQuery.
 
 <img src="https://github.com/foxrunsoftware/DatePicker/blob/master/examples/screenshot-1.png?raw=true" />
 
+<img src="https://github.com/petrkotek/DatePicker/blob/master/examples/screenshot-2.png?raw=true" />
+
 Take a look at the [examples page](http://foxrunsoftware.github.com/DatePicker/) for live, and additional examples.  Then visit the [API reference page](http://foxrunsoftware.github.com/DatePicker/reference.html).
 
 ## Bug tracker
@@ -32,6 +34,14 @@ Have a bug? Please create an issue here on GitHub!
 https://github.com/foxrunsoftware/DatePicker/issues
 
 ## Changelog
+
+#### 1.1.0 - 12/27/2012 ####
+* Merged pull request [Selectable Date Range Configuration](https://github.com/foxrunsoftware/DatePicker/pull/7)
+* Merged pull request [Fixed issue #8 curcss jQuery alias](https://github.com/foxrunsoftware/DatePicker/pull/9)
+* Merged pull request [Fixed #2 and #11 Month selection not working properly after setting the dates dinamically](https://github.com/foxrunsoftware/DatePicker/pull/12)
+* Fixed month selection bug after setting dinamically the date with the selectable date range configuration for range mode and single modes
+* Added example page inside the repo for local testing using the js/css source from the repo 
+* Added selectableDates reference api entry
 
 #### 1.0.0 - 3/12/2012 ####
 * Initial Release
