@@ -200,6 +200,12 @@
          */
         showOn: 'focus',
         /**
+         * Defines what happens when the header "Month, Year" is clicked.
+         * 'selectWholeMonth' will select the whole month as a range, while
+         * 'switchMonthYearView' will show Month/Year picker, which was the default behaviour.
+         */
+        headerClick: 'selectWholeMonth',
+        /**
          * Callback, invoked prior to the rendering of each date cell, which
          * allows control of the styling of the cell via the returned hash.
          *
@@ -517,62 +523,80 @@
               tmpStart.addMonths(tblIndex - currentCal);
               tmpEnd.addMonths(tblIndex - currentCal);
 
-			  if (options.mode == 'tworanges') {
-				var offset = (options.lastSel > 1) ? 2 : 0;
-				var nextSel = (options.lastSel > 1) ? 0 : 2;
-                // range, select the whole month
-                options.date[offset] = (tmp.setHours(0,0,0,0)).valueOf();
-                tmp.addDays(tmp.getMaxDays()-1);
-                tmp.setHours(23,59,59,999);
-                options.date[offset+1] = tmp.valueOf();
-                fillIt = true;
-                changed = true;
-                options.lastSel = nextSel;
-              } else if (options.mode == 'range') {
-                // range, select the whole month
+              var selectWholeMonth = function(){
+                if (options.mode == 'tworanges') {
+                  var offset = (options.lastSel > 1) ? 2 : 0;
+                  var nextSel = (options.lastSel > 1) ? 0 : 2;
+                  // range, select the whole month
+                  options.date[offset] = (tmp.setHours(0,0,0,0)).valueOf();
+                  tmp.addDays(tmp.getMaxDays()-1);
+                  tmp.setHours(23,59,59,999);
+                  options.date[offset+1] = tmp.valueOf();
+                  fillIt = true;
+                  changed = true;
+                  options.lastSel = nextSel;
+                } else if (options.mode == 'range') {
+                  // range, select the whole month
 
-                var prevDate = Array.prototype.slice.apply(options.date);
-                var baseDate, endDate;
-                if (options.selectableDates) {
-                  baseDate = options.selectableDates[0];
-                  endDate = options.selectableDates[1];
-                }
+                  var prevDate = Array.prototype.slice.apply(options.date);
+                  var baseDate, endDate;
+                  if (options.selectableDates) {
+                    baseDate = options.selectableDates[0];
+                    endDate = options.selectableDates[1];
+                  }
 
-                tmpStart.setHours(0,0,0,0);
-                tmpStart.setDate(1);
+                  tmpStart.setHours(0,0,0,0);
+                  tmpStart.setDate(1);
 
-                if (options.selectableDates != null) {
-                  if (tmpStart.getTime() < baseDate.getTime() ){
-                    tmpStart.setTime(baseDate.getTime());
+                  if (options.selectableDates != null) {
+                    if (tmpStart.getTime() < baseDate.getTime() ){
+                      tmpStart.setTime(baseDate.getTime());
+                    }
+                  }
+                  options.date[0] = tmpStart.valueOf();
+
+                  // Check if the end date is allowed
+                  tmpEnd.setDate(tmpEnd.getMaxDays());
+                  tmpEnd.setHours(23,59,59,999);
+
+                  if (options.selectableDates != null) {
+                    if (tmpEnd.getTime() > endDate.getTime()){
+                      tmpEnd.setTime(endDate.getTime());
+                    }
+                  }
+                  options.date[1] = tmpEnd.valueOf();
+
+                  if (options.selectableDates != null) {
+                    if((tmpStart.getTime() > endDate.getTime()) || (tmpEnd.getTime() < baseDate.getTime())){
+                      options.date[0] = 0;
+                      options.date[1] = 0;
+                    }
+                  }
+                  if (!options.date[0] && !options.date[1]) {
+                    options.date = prevDate;
+                  }
+
+                  fillIt = true;
+                  changed = true;
+                  options.lastSel = false;
+                } else if(options.calendars == 1) {
+                  // single/multiple mode with a single calendar: swap between daily/monthly/yearly view.
+                  // Note:  there's no reason a multi-calendar widget can't have this functionality,
+                  //   however I think it looks really unintuitive.
+                  if(tblEl.eq(0).hasClass('datepickerViewDays')) {
+                    tblEl.eq(0).toggleClass('datepickerViewDays datepickerViewMonths');
+                    el.find('span').text(tmp.getFullYear());
+                  } else if(tblEl.eq(0).hasClass('datepickerViewMonths')) {
+                    tblEl.eq(0).toggleClass('datepickerViewMonths datepickerViewYears');
+                    el.find('span').text((tmp.getFullYear()-6) + ' - ' + (tmp.getFullYear()+5));
+                  } else if(tblEl.eq(0).hasClass('datepickerViewYears')) {
+                    tblEl.eq(0).toggleClass('datepickerViewYears datepickerViewDays');
+                    el.find('span').text(tmp.getMonthName(true)+", "+tmp.getFullYear());
                   }
                 }
-                options.date[0] = tmpStart.valueOf();
+              }
 
-                // Check if the end date is allowed
-                tmpEnd.setDate(tmpEnd.getMaxDays());
-                tmpEnd.setHours(23,59,59,999);
-
-                if (options.selectableDates != null) {
-                  if (tmpEnd.getTime() > endDate.getTime()){
-                    tmpEnd.setTime(endDate.getTime());
-                  }
-                }
-                options.date[1] = tmpEnd.valueOf();
-
-                if (options.selectableDates != null) {
-                  if((tmpStart.getTime() > endDate.getTime()) || (tmpEnd.getTime() < baseDate.getTime())){
-                    options.date[0] = 0;
-                    options.date[1] = 0;
-                  }
-                }
-                if (!options.date[0] && !options.date[1]) {
-                  options.date = prevDate;
-                }
-
-                fillIt = true;
-                changed = true;
-                options.lastSel = false;
-              } else if(options.calendars == 1) {
+              var switchMonthYearView = function(){
                 // single/multiple mode with a single calendar: swap between daily/monthly/yearly view.
                 // Note:  there's no reason a multi-calendar widget can't have this functionality,
                 //   however I think it looks really unintuitive.
@@ -586,6 +610,20 @@
                   tblEl.eq(0).toggleClass('datepickerViewYears datepickerViewDays');
                   el.find('span').text(tmp.getMonthName(true)+", "+tmp.getFullYear());
                 }
+              }
+
+              if(options.mode == 'range') {
+                switch(options.headerClick){
+                  case 'switchMonthYearView':
+                    switchMonthYearView();
+                    break;
+                  case 'selectWholeMonth':
+                  default:
+                    selectWholeMonth();
+                  break;
+                }
+              } else if(options.calendars == 1) {
+                switchMonthYearView();
               }
             } else if (parentEl.parent().parent().is('thead')) {
               // clicked either next/previous arrows
