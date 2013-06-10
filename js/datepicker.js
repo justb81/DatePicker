@@ -531,11 +531,12 @@
               } else if (options.mode == 'range') {
                 // range, select the whole month
 
-                // Check if the start date is allowed
-                // options.selectableDates[0];
-                // options.selectableDates[1];
-                var baseDate = options.selectableDates[0];
-                var endDate = options.selectableDates[1];
+                var prevDate = Array.prototype.slice.apply(options.date);
+                var baseDate, endDate;
+                if (options.selectableDates) {
+                  baseDate = options.selectableDates[0];
+                  endDate = options.selectableDates[1];
+                }
 
                 tmpStart.setHours(0,0,0,0);
                 tmpStart.setDate(1);
@@ -563,6 +564,9 @@
                     options.date[0] = 0;
                     options.date[1] = 0;
                   }
+                }
+                if (!options.date[0] && !options.date[1]) {
+                  options.date = prevDate;
                 }
 
                 fillIt = true;
