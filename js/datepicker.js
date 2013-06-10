@@ -373,18 +373,21 @@
             var fromUser = options.onRenderCell(el, date);
             var val = date.valueOf();
             if(options.date && (!$.isArray(options.date) || options.date.length > 0)) {
-			  if (options.mode != 'tworanges') {
-				if (fromUser.selected || options.date == val || ($.isArray(options.date) && $.inArray(val, options.date.slice(0,2)) > -1) || (options.mode == 'range' && val >= options.date[0] && val <= options.date[1])) {
-					data.weeks[indic].days[indic2].classname.push('datepickerSelected');
-				}
-			  } else {
-			    if ((val >= options.date[0] && val <= options.date[1]) || (val == options.date[0])) {
+              if (options.mode != 'tworanges') {
+                var isCurrentDate = options.date == val;
+                var isLimitsRangeDate = $.isArray(options.date) && $.inArray(val, options.date.slice(0, 2)) > -1;
+                var inCurrentRange = options.mode == 'range' && val >= options.date[0] && val <= options.date[1];
+                if (fromUser.selected || isCurrentDate || isLimitsRangeDate || inCurrentRange) {
                   data.weeks[indic].days[indic2].classname.push('datepickerSelected');
                 }
-				if ((val >= options.date[2] && val <= options.date[3]) || (val == options.date[2])) {
+              } else {
+                if ((val >= options.date[0] && val <= options.date[1]) || (val == options.date[0])) {
+                  data.weeks[indic].days[indic2].classname.push('datepickerSelected');
+                }
+                if ((val >= options.date[2] && val <= options.date[3]) || (val == options.date[2])) {
                   data.weeks[indic].days[indic2].classname.push('datepickerSelected2');
                 }
-			  }
+              }
             }
             if (fromUser.disabled) {
               data.weeks[indic].days[indic2].classname.push('datepickerDisabled');
@@ -677,11 +680,8 @@
 
 	                      if (val < options.date[other]) {
 	                        // second range click < first
-	                        options.date[1] = options.date[0] + 86399000;  // starting date + 1 day
-	                        options.date[0] = val - 86399000;  // minus 1 day
-
 	                        options.date[second] = options.date[first] + 86399000;  // starting date + 1 day
-	                        options.date[first] = val - 86399000;  // minus 1 day
+	                        options.date[first] = val - 86399999;  // minus 1 day
 	                      } else {
 	                        // initial range click, or final range click >= first
 	  					  options.date[second] = val;
