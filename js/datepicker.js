@@ -356,7 +356,9 @@
               data.weeks[indic].days[indic2].classname.push('datepickerToday');
             }
             if($.isArray(options.selectableDates) && options.selectableDates.length == 2) {
-              if(date < options.selectableDates[0] || date > options.selectableDates[1]) {
+              var beforeSelectableDates = options.selectableDates[0] && date < options.selectableDates[0];
+              var afterSelectableDates = options.selectableDates[1] && date > options.selectableDates[1];
+              if (beforeSelectableDates || afterSelectableDates) {
                 data.weeks[indic].days[indic2].classname.push('datepickerFuture');
                 data.weeks[indic].days[indic2].classname.push('datepickerDisabled');
               }
@@ -548,7 +550,7 @@
                   tmpStart.setHours(0,0,0,0);
                   tmpStart.setDate(1);
 
-                  if (options.selectableDates != null) {
+                  if (options.selectableDates != null && baseDate) {
                     if (tmpStart.getTime() < baseDate.getTime() ){
                       tmpStart.setTime(baseDate.getTime());
                     }
@@ -559,7 +561,7 @@
                   tmpEnd.setDate(tmpEnd.getMaxDays());
                   tmpEnd.setHours(23,59,59,999);
 
-                  if (options.selectableDates != null) {
+                  if (options.selectableDates != null && endDate) {
                     if (tmpEnd.getTime() > endDate.getTime()){
                       tmpEnd.setTime(endDate.getTime());
                     }
@@ -567,7 +569,9 @@
                   options.date[1] = tmpEnd.valueOf();
 
                   if (options.selectableDates != null) {
-                    if((tmpStart.getTime() > endDate.getTime()) || (tmpEnd.getTime() < baseDate.getTime())){
+                    var beforeLimitRange = baseDate && tmpEnd.getTime() < baseDate.getTime();
+                    var afterLimitRange = endDate && tmpStart.getTime() > endDate.getTime();
+                    if (beforeLimitRange || afterLimitRange) {
                       options.date[0] = 0;
                       options.date[1] = 0;
                     }
@@ -673,66 +677,62 @@
                     }
                     break;
                   case 'range':
-				  case 'tworanges':
-					var mapping_other = [1, 0, 3, 2];
-					var mapping_first = [0, 0, 2, 2];
-					options.lastSel = options.lastSel+1-1; // force to num
-					var current = options.lastSel;
-					var other = mapping_other[options.lastSel];
-					var first = mapping_first[options.lastSel];
-					var second = first + 1;
-					if (options.weeklyMode)
-					{
-						var day = tmp.getDay();
-						var diff = (day == 0 ? -6 : 1) - day;
-						var monday = new Date(tmp.getTime()+diff*24*3600000); // return closest monday
-						var sunday = new Date(monday.getTime()+6*24*3600000); // return next sunday
-						changedRange = true;
-						options.date[first] = (monday.setHours(0,0,0,0)).valueOf();
-						options.date[second] = (sunday.setHours(23,59,59,999)).valueOf();
-		                var modulo = options.mode == 'range' ? 2 : 4;
-		                options.lastSel = (current + 2) % modulo;
-		            }
-					else if (options.monthlyMode)
-					{
-						tmp.setDate(1);
-						var year = tmp.getFullYear();
-						var month = tmp.getMonth() + 1
-						if (month == 12)
-						{
-							year++;
-							month = 0;
-						}
-						var firstDayNextMonth = new Date(year, month, 1, 23, 59, 59 ,999);
-						var lastMonthDate = new Date(firstDayNextMonth.getTime()-24*3600000); // return last day of this month
-						changedRange = true;
-						options.date[first] = (tmp.setHours(0,0,0,0)).valueOf();
-						options.date[second] = lastMonthDate.valueOf();
-		                var modulo = options.mode == 'range' ? 2 : 4;
-		                options.lastSel = (current + 2) % modulo;
-		            }
-					else
-					{
-	                    if (current == first) {
-	                        // first click: set to the start of the day
-	                        options.date[first] = (tmp.setHours(0,0,0,0)).valueOf();
-	                      }
-	                      // get the very end of the day clicked
-	                      val = (tmp.setHours(23,59,59,999)).valueOf();
+                  case 'tworanges':
+                    var mapping_other = [1, 0, 3, 2];
+                    var mapping_first = [0, 0, 2, 2];
+                    options.lastSel = options.lastSel + 1 - 1; // force to num
+                    var current = options.lastSel;
+                    var other = mapping_other[options.lastSel];
+                    var first = mapping_first[options.lastSel];
+                    var second = first + 1;
+                    if (options.weeklyMode) {
+                      var day = tmp.getDay();
+                      var diff = (day == 0 ? -6 : 1) - day;
+                      var monday = new Date(tmp.getTime() + diff * 24 * 3600000); // return closest monday
+                      var sunday = new Date(monday.getTime() + 6 * 24 * 3600000); // return next sunday
+                      changedRange = true;
+                      options.date[first] = (monday.setHours(0, 0, 0, 0)).valueOf();
+                      options.date[second] = (sunday.setHours(23, 59, 59, 999)).valueOf();
+                      var modulo = options.mode == 'range' ? 2 : 4;
+                      options.lastSel = (current + 2) % modulo;
+                    }
+                    else if (options.monthlyMode) {
+                      tmp.setDate(1);
+                      var year = tmp.getFullYear();
+                      var month = tmp.getMonth() + 1;
+                      if (month == 12) {
+                        year++;
+                        month = 0;
+                      }
+                      var firstDayNextMonth = new Date(year, month, 1, 23, 59, 59, 999);
+                      var lastMonthDate = new Date(firstDayNextMonth.getTime() - 24 * 3600000); // return last day of this month
+                      changedRange = true;
+                      options.date[first] = (tmp.setHours(0, 0, 0, 0)).valueOf();
+                      options.date[second] = lastMonthDate.valueOf();
+                      var modulo = options.mode == 'range' ? 2 : 4;
+                      options.lastSel = (current + 2) % modulo;
+                    }
+                    else {
+                      if (current == first) {
+                        // first click: set to the start of the day
+                        options.date[first] = (tmp.setHours(0, 0, 0, 0)).valueOf();
+                      }
+                      // get the very end of the day clicked
+                      val = (tmp.setHours(23, 59, 59, 999)).valueOf();
 
-	                      if (val < options.date[other]) {
-	                        // second range click < first
-	                        options.date[second] = options.date[first] + 86399000;  // starting date + 1 day
-	                        options.date[first] = val - 86399999;  // minus 1 day
-	                      } else {
-	                        // initial range click, or final range click >= first
-	  					  options.date[second] = val;
-	                      }
-	                      options.lastSel = !options.lastSel;
-	                      changedRange = !options.lastSel;
-	  	                var modulo = options.mode == 'range' ? 2 : 4;
-		                options.lastSel = (current + 1) % modulo;
-					}
+                      if (val < options.date[other]) {
+                        // second range click < first
+                        options.date[second] = options.date[first] + 86399000;  // starting date + 1 day
+                        options.date[first] = val - 86399999;  // minus 1 day
+                      } else {
+                        // initial range click, or final range click >= first
+                        options.date[second] = val;
+                      }
+                      options.lastSel = !options.lastSel;
+                      changedRange = !options.lastSel;
+                      var modulo = options.mode == 'range' ? 2 : 4;
+                      options.lastSel = (current + 1) % modulo;
+                    }
                     break;
                   default:
                     options.date = tmp.valueOf();
