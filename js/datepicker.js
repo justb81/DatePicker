@@ -187,6 +187,13 @@
          * Initial calendar view, one of 'days', 'months' or 'years'.  Defaults to 'days'.
          */
         view: 'days',
+
+        /**
+         * Allow clicking on days that are shown in a monthly calendar under a new month.
+         * Default: 'true'
+         */
+        allowNotInMonth: true,
+
         /**
          * Date picker's position relative to the trigger element (non inline
          * mode only), one of 'top', 'left', 'right' or 'bottom'. Defaults to 'bottom'
@@ -369,8 +376,11 @@
 
             if (month != date.getMonth()) {
               data.weeks[indic].days[indic2].classname.push('datepickerNotInMonth');
+
               // disable clicking of the 'not in month' cells
-              data.weeks[indic].days[indic2].classname.push('datepickerDisabled');
+              if (!options.allowNotInMonth) {
+                data.weeks[indic].days[indic2].classname.push('datepickerDisabled');
+              }
             }
             if (date.getDay() == 0) {
               data.weeks[indic].days[indic2].classname.push('datepickerSunday');
