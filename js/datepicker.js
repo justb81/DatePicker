@@ -190,9 +190,9 @@
 
         /**
          * Allow clicking on days that are shown in a monthly calendar under a new month.
-         * Default: 'true'
+         * Default: 'false'
          */
-        allowNotInMonth: true,
+        allowNotInMonth: false,
 
         /**
          * Date picker's position relative to the trigger element (non inline
